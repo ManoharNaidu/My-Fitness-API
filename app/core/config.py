@@ -1,10 +1,11 @@
+import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     app_name: str = "My Fitness API"
     api_prefix: str = "/v1"
-    secret_key: str = "change-this-in-production"
+    secret_key: str = os.getenv("SECRET_KEY")
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24
 
