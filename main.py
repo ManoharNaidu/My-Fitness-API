@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -5,6 +6,8 @@ from fastapi.responses import JSONResponse
 
 from app.api import analytics, auth, exercises, nutrition, sessions, templates, users
 from app.core.config import settings
+
+port = os.getenv("PORT", 8000)
 
 app = FastAPI(
     title=settings.app_name,
