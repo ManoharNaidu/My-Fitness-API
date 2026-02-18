@@ -18,13 +18,24 @@ def get_current_user(
             detail="Invalid or expired token",
         )
 
-    response = (
-        supabase.table("users")
-        .select("id,email,display_name,units,default_rest_seconds,password_hash")
-        .eq("id", int(user_id))
-        .limit(1)
-        .execute()
-    )
+    try:
+        response = (
+            supabase.table("users")
+            .select("id,email,display_name,units,default_rest_seconds,password_hash")
+            .eq("id", int(user_id))
+            .limit(1)
+            .execute()
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=(
+                "Failed to load current user from Supabase. "
+                "Ensure backend uses SUPABASE_SERVICE_ROLE_KEY and RLS policies allow reads. "
+                f"Original error: {exc}"
+            ),
+        ) from exc
+
     user = response.data[0] if response.data else None
     if user is None:
         raise HTTPException(

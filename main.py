@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.requests import Request
 
 from app.api import analytics, auth, exercises, nutrition, sessions, templates, users
 from app.core.config import settings
@@ -35,7 +36,18 @@ async def validation_exception_handler(_, exc: RequestValidationError):
     )
 
 
-@app.get("/health", tags=["health"])
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(_: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={
+            "message": "Internal server error",
+            "detail": str(exc),
+        },
+    )
+
+
+@app.get("/")
 def health_check():
     return {"status": "ok", "service": settings.app_name}
 
