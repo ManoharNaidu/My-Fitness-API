@@ -1,19 +1,21 @@
-# My Fitness API (FastAPI + Supabase)
+# My Fitness API (FastAPI)
 
 Backend for the Flutter app at `D:\Flutter Apps\my_fitness`.
 
-## Supabase Configuration
+## Configuration
 
 This project reads environment values from `.env`.
 
-Update these values with your actual Supabase project credentials:
+Required values:
 
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
-- `SUPABASE_DB_URL` (Postgres connection string from Supabase)
 
-The API is configured to use **Supabase Postgres only** via `SUPABASE_DB_URL`.
-There is no SQLite fallback.
+Optional:
+
+- `SUPABASE_SERVICE_ROLE_KEY` (recommended for backend operations; if omitted, `SUPABASE_ANON_KEY` is used)
+
+This backend now uses the **Supabase Python client directly** (REST/PostgREST) and does **not** require `SUPABASE_DB_URL`.
 
 ## Install and Run
 
@@ -29,5 +31,4 @@ python -m uvicorn main:app --reload --port 8000
 
 ## Seeded Demo User
 
-- Email: `demo@myfitness.app`
-- Password: `demo1234`
+No automatic SQL seed runs on startup anymore. Create users via `/v1/auth/register` or directly in your Supabase tables.

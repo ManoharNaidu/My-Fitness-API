@@ -5,8 +5,6 @@ from fastapi.responses import JSONResponse
 
 from app.api import analytics, auth, exercises, nutrition, sessions, templates, users
 from app.core.config import settings
-from app.db import Base, SessionLocal, engine
-from app.seed import seed_database
 
 app = FastAPI(
     title=settings.app_name,
@@ -37,17 +35,6 @@ async def validation_exception_handler(_, exc: RequestValidationError):
 @app.get("/health", tags=["health"])
 def health_check():
     return {"status": "ok", "service": settings.app_name}
-
-
-@app.on_event("startup")
-def on_startup():
-    Base.metadata.create_all(bind=engine)
-    db = SessionLocal()
-    try:
-        seed_database(db)
-    finally:
-        db.close()
-
 
 app.include_router(auth.router, prefix=settings.api_prefix)
 app.include_router(users.router, prefix=settings.api_prefix)
