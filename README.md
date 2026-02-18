@@ -8,6 +8,7 @@ This project reads environment values from `.env`.
 
 Required values:
 
+- `SECRET_KEY`
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY` (**recommended for backend server usage**)
 
@@ -15,6 +16,12 @@ Also supported for backward compatibility:
 
 - `SUPABASE_KEY`
 - `SUPABASE_ANON_KEY`
+
+Quick start:
+
+```bash
+copy .env.example .env
+```
 
 This backend now uses the **Supabase Python client directly** (REST/PostgREST) and does **not** require `SUPABASE_DB_URL`.
 
