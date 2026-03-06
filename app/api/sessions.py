@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
@@ -8,6 +8,17 @@ from app.deps import get_current_user
 from app.schemas import SessionPublic, SessionStartRequest, SessionUpdateRequest
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
+
+
+def _coerce_utc_datetime(value: object) -> datetime:
+    if isinstance(value, datetime):
+        dt = value
+    else:
+        dt = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
 
 
 def _insert_session_exercises(supabase: Client, session_id: int, exercises_in: list):
@@ -143,9 +154,9 @@ def finish_session(
     if session_obj["status"] != "active":
         raise HTTPException(status_code=400, detail="Session already completed/cancelled")
 
-    ended_at = datetime.utcnow()
-    started_at = datetime.fromisoformat(str(session_obj["started_at"]).replace("Z", "+00:00"))
-    duration_seconds = int((ended_at - started_at).total_seconds())
+    ended_at = datetime.now(timezone.utc)
+    started_at = _coerce_utc_datetime(session_obj["started_at"])
+    duration_seconds = max(0, int((ended_at - started_at).total_seconds()))
     supabase.table("sessions").update(
         {
             "status": "completed",

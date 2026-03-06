@@ -28,12 +28,8 @@ def get_current_user(
         )
     except Exception as exc:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=(
-                "Failed to load current user from Supabase. "
-                "Ensure backend uses SUPABASE_SERVICE_ROLE_KEY and RLS policies allow reads. "
-                f"Original error: {exc}"
-            ),
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="User service temporarily unavailable",
         ) from exc
 
     user = response.data[0] if response.data else None

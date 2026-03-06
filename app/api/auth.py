@@ -7,13 +7,8 @@ from app.schemas import TokenResponse, UserLogin, UserPublic, UserRegister
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-def _supabase_error_detail(exc: Exception) -> str:
-    return (
-        "Supabase operation failed. "
-        "Ensure backend is configured with SUPABASE_SERVICE_ROLE_KEY "
-        "(recommended) and your database/RLS policies allow this operation. "
-        f"Original error: {exc}"
-    )
+def _auth_service_error() -> str:
+    return "Authentication service temporarily unavailable"
 
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
@@ -57,7 +52,7 @@ def register(payload: UserRegister, supabase: Client = Depends(get_supabase)):
 
         raise HTTPException(
             status_code=500,
-            detail=_supabase_error_detail(exc),
+            detail=_auth_service_error(),
         ) from exc
 
     token = create_access_token(str(user["id"]))
@@ -77,7 +72,7 @@ def login(payload: UserLogin, supabase: Client = Depends(get_supabase)):
             .execute()
         )
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=_supabase_error_detail(exc)) from exc
+        raise HTTPException(status_code=500, detail=_auth_service_error()) from exc
 
     user = response.data[0] if response.data else None
     if not user or not verify_password(payload.password, user["password_hash"]):
