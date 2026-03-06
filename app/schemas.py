@@ -163,6 +163,46 @@ class SessionPublic(BaseModel):
     exercises: list[SessionExerciseOut]
 
 
+class WorkoutCreate(BaseModel):
+    name: str = Field(min_length=2, max_length=120)
+    date: datetime
+    notes: str | None = None
+
+
+class WorkoutPublic(BaseModel):
+    id: int
+    user_id: int
+    name: str
+    date: datetime
+    notes: str | None
+    status: str
+    duration_seconds: int | None
+    exercises: list[SessionExerciseOut]
+
+
+class WorkoutExerciseAdd(BaseModel):
+    exercise_id: int
+    sort_order: int = 0
+
+
+class SetCreate(BaseModel):
+    exercise_id: int
+    weight: float = Field(ge=0)
+    reps: int = Field(ge=0, le=200)
+    set_number: int | None = Field(default=None, ge=1)
+    rest_time: int | None = Field(default=None, ge=0)
+    rpe: float | None = Field(default=None, ge=0, le=10)
+
+
+class SetPublic(BaseModel):
+    id: int
+    exercise_id: int
+    weight: float
+    reps: int
+    set_number: int
+    created_at: datetime
+
+
 class MealCreate(BaseModel):
     meal_name: str = Field(min_length=2, max_length=150)
     calories: int = Field(ge=0, le=5000)
