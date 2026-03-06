@@ -1,14 +1,16 @@
 import os
+import logging
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.requests import Request
 
-from app.api import analytics, auth, exercises, nutrition, sessions, templates, users
+from app.api import analytics, auth, exercises, nutrition, sessions, templates, users, workouts
 from app.core.config import settings
 
 port = os.getenv("PORT", 8000)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title=settings.app_name,
@@ -18,7 +20,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.allowed_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,11 +40,11 @@ async def validation_exception_handler(_, exc: RequestValidationError):
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(_: Request, exc: Exception):
+    logger.exception("Unhandled application error", exc_info=exc)
     return JSONResponse(
         status_code=500,
         content={
             "message": "Internal server error",
-            "detail": str(exc),
         },
     )
 
@@ -56,5 +58,6 @@ app.include_router(users.router, prefix=settings.api_prefix)
 app.include_router(exercises.router, prefix=settings.api_prefix)
 app.include_router(templates.router, prefix=settings.api_prefix)
 app.include_router(sessions.router, prefix=settings.api_prefix)
+app.include_router(workouts.router, prefix=settings.api_prefix)
 app.include_router(nutrition.router, prefix=settings.api_prefix)
 app.include_router(analytics.router, prefix=settings.api_prefix)
